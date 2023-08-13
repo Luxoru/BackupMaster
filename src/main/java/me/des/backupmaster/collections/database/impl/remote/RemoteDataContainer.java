@@ -51,6 +51,8 @@ public abstract class RemoteDataContainer implements DataContainer {
 
     protected abstract void connect();
 
+    protected abstract void disconnect();
+
     protected abstract String createConnectionString(String ip, int port, String authsource, String username, String password, boolean ssl);
 
 
