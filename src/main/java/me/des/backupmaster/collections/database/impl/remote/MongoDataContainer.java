@@ -16,7 +16,6 @@ import java.util.concurrent.CompletableFuture;
 
 public class MongoDataContainer extends RemoteDataContainer {
 
-    private final BackupMaster plugin;
     private MongoClient mongoClient;
     private MongoCollection<Document> templatesCollection;
 
@@ -25,7 +24,6 @@ public class MongoDataContainer extends RemoteDataContainer {
 
     public MongoDataContainer(BackupMaster plugin) {
         super(plugin, "mongo");
-        this.plugin = plugin;
     }
 
     @Override
@@ -73,6 +71,11 @@ public class MongoDataContainer extends RemoteDataContainer {
 
         // validate the session
         mongoClient.listDatabaseNames().first(); // throws an exception if the connection is invalid
+    }
+
+    @Override
+    protected void disconnect() {
+        mongoClient.close();
     }
 
     @Override
