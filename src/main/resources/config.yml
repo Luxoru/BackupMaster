@@ -1,0 +1,22 @@
+mariadb:
+  fallback: file
+
+  host: 127.0.0.1
+  port: 3306
+  database: backupmaster
+  username: root
+  password: ''
+
+  table: backupmaster
+
+mongodb:
+  fallback: mysql
+
+  ip: 127.0.0.1
+  port: 27017
+  auth-source: admin
+  username: root
+  password: ''
+
+  database: backupmaster
+  collection: worlds
