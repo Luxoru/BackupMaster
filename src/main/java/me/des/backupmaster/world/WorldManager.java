@@ -1,0 +1,167 @@
+package me.des.backupmaster.world;
+
+import lombok.Getter;
+import me.des.backupmaster.BackupMaster;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.logging.Level;
+
+public class WorldManager {
+
+    private final Set<String> worlds;
+    private final BackupMaster plugin;
+
+    public WorldManager(BackupMaster plugin) {
+        this.worlds = new HashSet<>();
+        this.plugin = plugin;
+        getAllWorldsOnServer();
+    }
+
+
+    public boolean addWorld(World world){
+        return worlds.add(world.getName());
+    }
+
+    public boolean removeWorld(@NotNull World world){
+        return worlds.remove(world.getName());
+    }
+
+    public World getWorld(String worldName){
+        String nameOfWorld = getWorldFromName(worldName).join();
+        return Bukkit.getWorld(nameOfWorld);
+    }
+
+    private CompletableFuture<String> getWorldFromName(String name){
+        CompletableFuture<String> future = new CompletableFuture<>();
+        CompletableFuture.supplyAsync(() ->{
+            for(String world : worlds){
+                if(world.equals(name)){
+                    future.complete(world);
+                    return future;
+                }
+            }
+            future.complete(null);
+            return future;
+        });
+        return future;
+    }
+
+    public boolean doesWorldExist(World world){
+        return hasWorld(world).join();
+    }
+    public boolean doesWorldExist(String worldName){
+        if(Bukkit.getWorld(worldName) == null)return false;
+        return hasWorld(Bukkit.getWorld(worldName)).join();
+    }
+
+    @Contract("_ -> new")
+    private @NotNull CompletableFuture<Boolean> hasWorld(World world){
+        return CompletableFuture.supplyAsync(() -> worlds.contains(world.getName()));
+    }
+
+    public CompletableFuture<File> getWorldFolder(String worldName){
+        return CompletableFuture.supplyAsync(() -> getFolder(worldName));
+    }
+
+    private File getFolder(String folderName){
+        File pluginFile = new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        File rootFolder = pluginFile.getParentFile().getParentFile();
+        // Construct the path to the "worlds" directory
+        String decodedPath = URLDecoder.decode(rootFolder.getAbsolutePath(), StandardCharsets.UTF_8);
+        rootFolder = new File(decodedPath);
+        if (rootFolder.exists() && rootFolder.isDirectory()) {
+            File[] worldFolders = rootFolder.listFiles();
+            if (worldFolders != null) {
+                for (File worldFolder : worldFolders) {
+                    if (worldFolder.isDirectory() && hasLevelDatFile(worldFolder) && worldFolder.getName().equals(folderName)) {
+                        return worldFolder;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private void getAllWorldsOnServer() {
+
+        plugin.getLogger().log(Level.INFO, "Loading Worlds ...");
+
+        ExecutorService executor = Executors.newCachedThreadPool();
+
+
+        Future<List<String>> future = executor.submit(() -> {
+            List<String> worldsList = new ArrayList<>();
+
+            File pluginFile = new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+            File rootFolder = pluginFile.getParentFile().getParentFile();
+
+            // Construct the path to the "worlds" directory
+            String decodedPath = URLDecoder.decode(rootFolder.getAbsolutePath(), StandardCharsets.UTF_8);
+            rootFolder = new File(decodedPath);
+
+            if (rootFolder.exists() && rootFolder.isDirectory()) {
+                File[] worldFolders = rootFolder.listFiles();
+                if (worldFolders != null) {
+                    for (File worldFolder : worldFolders) {
+                        if (worldFolder.isDirectory() && hasLevelDatFile(worldFolder)) {
+                            worldsList.add(worldFolder.getName());
+                        }
+                    }
+                }
+            }
+
+            return worldsList;
+        });
+
+        executor.shutdown();
+        try{
+            this.worlds.addAll(future.get());
+            plugin.getLogger().log(Level.INFO, "\u001B[32mSuccessfully loaded worlds.\u001B[0m");
+        } catch (ExecutionException | InterruptedException e) {
+            plugin.getLogger().log(Level.SEVERE, "\u001B[31mError whilst loading worlds!\u001B[0m");
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Collection<String> getWorlds(){
+        return worlds;
+    }
+
+
+
+    private boolean hasLevelDatFile(File worldFolder) {
+        File levelDatFile = new File(worldFolder, "level.dat");
+        return levelDatFile.exists() && levelDatFile.isFile();
+    }
+
+    public static enum WorldType {
+
+        NORMAL("normal"), NETHER("nether"), END("end"), CUSTOM("custom");
+
+        @Getter
+        private final String worldName;
+
+        WorldType(String worldName) {
+            this.worldName = worldName;
+        }
+
+        public static String from(WorldType type){
+            for(WorldType t : values()){
+                if(Objects.equals(t.worldName, type.worldName))return t.getWorldName();
+            }
+            return null;
+        }
+
+
+    }
+
+
+}

@@ -1,0 +1,6 @@
+name: BackupMaster
+version: '${project.version}'
+main: me.des.backupmaster.BackupMaster
+api-version: '1.20'
+commands:
+  backup:
