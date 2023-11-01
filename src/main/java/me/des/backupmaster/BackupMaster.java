@@ -2,6 +2,7 @@ package me.des.backupmaster;
 
 import com.onarandombox.MultiverseCore.MultiverseCore;
 import lombok.Getter;
+import me.des.backupmaster.collections.database.DataManager;
 import me.des.backupmaster.commands.handler.CommandManager;
 import me.des.backupmaster.world.WorldManager;
 import org.bukkit.Bukkit;
@@ -18,6 +19,9 @@ public final class BackupMaster extends JavaPlugin {
     @Getter
     private static BackupMaster instance;
 
+    @Getter
+    private DataManager dataManager;
+
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -26,6 +30,8 @@ public final class BackupMaster extends JavaPlugin {
         instance = this;
         CommandManager manager = new CommandManager(this);
         manager.initializeCommands();
+        this.dataManager = new DataManager(this);
+        dataManager.initAllContainers();
 
 
     }
