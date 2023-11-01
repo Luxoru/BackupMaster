@@ -1,4 +1,5 @@
 mariadb:
+  enabled: false
   fallback: file
 
   host: 127.0.0.1
@@ -9,10 +10,15 @@ mariadb:
 
   table: backupmaster
 
+
+default: file
+
 file:
+  enabled: true
   directory: ""
 
 mongodb:
+  enabled: false
   fallback: mysql
 
   ip: 127.0.0.1
