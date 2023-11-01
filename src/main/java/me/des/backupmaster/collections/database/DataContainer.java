@@ -48,6 +48,8 @@ public interface DataContainer {
      */
     String getName();
 
+    CompletableFuture<Boolean> loadWorld(String name, String worldType);
+
     /**
      * Fetches all templates from the container.
      *

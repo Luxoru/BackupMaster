@@ -50,6 +50,12 @@ public class MariaDBDataContainer extends RemoteDataContainer{
     }
 
     @Override
+    public CompletableFuture<Boolean> loadWorld(String name, String worldType) {
+        return null;
+    }
+
+
+    @Override
     public CompletableFuture<List<String>> fetchAllWorlds(WorldManager.WorldType type) {
         return null;
     }

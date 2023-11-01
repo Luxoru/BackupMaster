@@ -2,6 +2,9 @@ package me.des.backupmaster.world;
 
 import lombok.Getter;
 import me.des.backupmaster.BackupMaster;
+import me.des.backupmaster.collections.database.DataContainer;
+import me.des.backupmaster.collections.database.DataManager;
+import me.des.backupmaster.util.array.NoMultiverseEnabledException;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
@@ -72,8 +75,7 @@ public class WorldManager {
     }
 
     private File getFolder(String folderName){
-        File pluginFile = new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
-        File rootFolder = pluginFile.getParentFile().getParentFile();
+        File rootFolder = getRootFolder();
         // Construct the path to the "worlds" directory
         String decodedPath = URLDecoder.decode(rootFolder.getAbsolutePath(), StandardCharsets.UTF_8);
         rootFolder = new File(decodedPath);
@@ -88,6 +90,11 @@ public class WorldManager {
             }
         }
         return null;
+    }
+
+    public File getRootFolder(){
+        File pluginFile = new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        return pluginFile.getParentFile().getParentFile();
     }
 
     private void getAllWorldsOnServer() {
@@ -161,6 +168,19 @@ public class WorldManager {
         }
 
 
+    }
+
+
+    public boolean loadWorld(String worldName, WorldType worldType){
+        String defaultLoader = plugin.getConfig().getString("default");
+
+        DataManager dataManager = plugin.getDataManager();
+        DataContainer container = dataManager.getFromContainerName(defaultLoader);
+
+        CompletableFuture<World> worldCompletableFuture = container.fetchWorld(worldName, worldType.name());
+        worldCompletableFuture.completeExceptionally(new NoMultiverseEnabledException());
+        World world = worldCompletableFuture.join();
+        return Bukkit.getWorld(world.getName()) != null;
     }
 
 
