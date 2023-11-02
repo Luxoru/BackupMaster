@@ -26,7 +26,7 @@ public final class BackupMaster extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         worldManager = new WorldManager(this);
-        mv = (MultiverseCore) Bukkit.getPluginManager().getPlugin("multiverse-core");
+        mv = (MultiverseCore) Bukkit.getPluginManager().getPlugin("Multiverse-Core");
         instance = this;
         CommandManager manager = new CommandManager(this);
         manager.initializeCommands();
