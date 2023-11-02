@@ -47,7 +47,23 @@ public class FileDataContainer implements DataContainer {
         CompletableFuture<Boolean> future = loadWorld(name, worldType);
 
         if(future.join()){
-            return CompletableFuture.supplyAsync(() -> Bukkit.getWorld(name));
+            // Define a regular expression pattern to capture the text before the first dash
+            Pattern pattern = Pattern.compile("([^\\-]+)-\\d{4}_\\d{2}_\\d{2}_\\d{2}-\\d{2}-\\d{2}");
+
+            // Create a Matcher to find the pattern in the input string
+            Matcher matcher = pattern.matcher(name);
+
+            String result = "";
+
+            if (matcher.find()) {
+                // Get the captured group (text before the first dash)
+                result = matcher.group(1);
+
+                System.out.println("WORLD LOADED = " + result);
+                return CompletableFuture.completedFuture(Bukkit.getWorld(result));
+            }
+
+
         }
 
         return CompletableFuture.completedFuture(null);
@@ -125,20 +141,6 @@ public class FileDataContainer implements DataContainer {
     public CompletableFuture<Boolean> loadWorld(String name, String worldType) {
         WorldManager.WorldType type = WorldManager.WorldType.valueOf(worldType);
 
-
-        // Move world folder to main folder
-
-        String filePath = getFileSavingPath()+"\\"+type+"\\"+name;
-
-        File rootFolder = BackupMaster.getInstance().getWorldManager().getRootFolder();
-
-        cloneFolder(filePath, rootFolder.getAbsolutePath());
-
-
-        // Load the folder using multiverse.
-
-
-
         // Define a regular expression pattern to capture the text before the first dash
         Pattern pattern = Pattern.compile("([^\\-]+)-\\d{4}_\\d{2}_\\d{2}_\\d{2}-\\d{2}-\\d{2}");
 
@@ -146,12 +148,29 @@ public class FileDataContainer implements DataContainer {
         Matcher matcher = pattern.matcher(name);
 
         String result = "";
+        // Move world folder to main folder
+
+        String filePath = getFileSavingPath()+"\\"+type+"\\"+name;
+
+        File rootFolder = BackupMaster.getInstance().getWorldManager().getRootFolder();
+
+
+
+
+        // Load the folder using multiverse.
+
+
+
+
 
         // Check if the pattern is found
         if (matcher.find()) {
             // Get the captured group (text before the first dash)
             result = matcher.group(1);
-            BackupMaster.getMv().getMVWorldManager().loadWorld(result);
+            cloneFolder(filePath, rootFolder.getAbsolutePath()+"\\"+result);
+            boolean importWorld = BackupMaster.getMv().getMVWorldManager().addWorld(result, World.Environment.NORMAL, "", WorldType.NORMAL, true, "");
+            boolean res = BackupMaster.getMv().getMVWorldManager().loadWorld(result);
+            System.out.println("WORLD LOADED = "+res);
             return CompletableFuture.completedFuture(true); // This will print "worldName" or any other variation before the first dash
         }else{
             return CompletableFuture.completedFuture(false);
