@@ -47,7 +47,23 @@ public class FileDataContainer implements DataContainer {
         CompletableFuture<Boolean> future = loadWorld(name, worldType);
 
         if(future.join()){
-            return CompletableFuture.supplyAsync(() -> Bukkit.getWorld(name));
+            // Define a regular expression pattern to capture the text before the first dash
+            Pattern pattern = Pattern.compile("([^\\-]+)-\\d{4}_\\d{2}_\\d{2}_\\d{2}-\\d{2}-\\d{2}");
+
+            // Create a Matcher to find the pattern in the input string
+            Matcher matcher = pattern.matcher(name);
+
+            String result = "";
+
+            if (matcher.find()) {
+                // Get the captured group (text before the first dash)
+                result = matcher.group(1);
+
+                System.out.println("WORLD LOADED = " + result);
+                return CompletableFuture.completedFuture(Bukkit.getWorld(result));
+            }
+
+
         }
 
         return CompletableFuture.completedFuture(null);
@@ -151,7 +167,8 @@ public class FileDataContainer implements DataContainer {
         if (matcher.find()) {
             // Get the captured group (text before the first dash)
             result = matcher.group(1);
-            BackupMaster.getMv().getMVWorldManager().loadWorld(result);
+            boolean res = BackupMaster.getMv().getMVWorldManager().loadWorld(result);
+            System.out.println("WORLD LOADED = "+res);
             return CompletableFuture.completedFuture(true); // This will print "worldName" or any other variation before the first dash
         }else{
             return CompletableFuture.completedFuture(false);

@@ -180,6 +180,7 @@ public class WorldManager {
         CompletableFuture<World> worldCompletableFuture = container.fetchWorld(worldName, worldType.name());
         worldCompletableFuture.completeExceptionally(new NoMultiverseEnabledException());
         World world = worldCompletableFuture.join();
+        if(world == null) return false;
         return Bukkit.getWorld(world.getName()) != null;
     }
 
