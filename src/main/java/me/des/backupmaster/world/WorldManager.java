@@ -149,11 +149,11 @@ public class WorldManager {
         return levelDatFile.exists() && levelDatFile.isFile();
     }
 
-    public static enum WorldType {
+    @Getter
+    public enum WorldType {
 
         NORMAL("normal"), NETHER("nether"), END("end"), CUSTOM("custom");
 
-        @Getter
         private final String worldName;
 
         WorldType(String worldName) {
@@ -177,9 +177,14 @@ public class WorldManager {
         DataManager dataManager = plugin.getDataManager();
         DataContainer container = dataManager.getFromContainerName(defaultLoader);
 
+        if(container == null){
+            return false;
+        }
+
         CompletableFuture<World> worldCompletableFuture = container.fetchWorld(worldName, worldType.name());
         worldCompletableFuture.completeExceptionally(new NoMultiverseEnabledException());
         World world = worldCompletableFuture.join();
+        if(world == null) return false;
         return Bukkit.getWorld(world.getName()) != null;
     }
 
