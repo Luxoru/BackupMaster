@@ -8,6 +8,8 @@ import me.des.backupmaster.world.WorldManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.logging.Level;
+
 @Getter
 public final class BackupMaster extends JavaPlugin {
 
@@ -25,13 +27,23 @@ public final class BackupMaster extends JavaPlugin {
     @Override
     public void onEnable() {
         // Plugin startup logic
-        worldManager = new WorldManager(this);
+        this.dataManager = new DataManager(this);
+        boolean containerEnabled = this.dataManager.initAllContainers();
+        if(!containerEnabled){
+            Bukkit.getServer().getPluginManager().disablePlugin(this);
+        }
+        this.worldManager = new WorldManager(this);
         mv = (MultiverseCore) Bukkit.getPluginManager().getPlugin("Multiverse-Core");
-        instance = this;
         CommandManager manager = new CommandManager(this);
         manager.initializeCommands();
-        this.dataManager = new DataManager(this);
-        dataManager.initAllContainers();
+        if(mv == null){
+            getLogger().log(Level.INFO, "Multiverse not found, some commands will be disabled");
+
+        }
+
+        instance = this;
+
+
 
 
     }

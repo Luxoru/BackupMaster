@@ -16,15 +16,35 @@ import java.util.logging.Level;
 public class FileUtils {
 
     public static void cloneFolder(String pathFrom, String pathTo) throws IOException {
-        deleteFolder(pathTo);
+
+
+
 
         Path sourceFolder = Paths.get(pathFrom);
-        BackupMaster.getInstance().getLogger().log(Level.INFO, "Cloning world folder: "+sourceFolder.getFileName());
-        Path targetFolder = Paths.get(pathTo);
+        //BackupMaster.getInstance().getLogger().log(Level.INFO, "Cloning world folder: "+sourceFolder.getFileName());
+
+        int count = 0;
+        boolean exists =Files.exists(Path.of(pathTo));
+        while (exists){
+            count++;
+            exists = Files.exists(Path.of(pathTo+count));
+        }
+
+        Path tF;
+
+        if(count != 0){
+            tF = Paths.get(pathTo+count);
+        }else{
+            tF = Paths.get(pathTo);
+        }
+
+        Path targetFolder = tF;
+
 
         CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> {
             try {
                 cloneFolderWithRetries(sourceFolder, targetFolder, MAX_RETRIES);
+
                 return true; // Successfully cloned
             } catch (IOException e) {
 
@@ -48,7 +68,7 @@ public class FileUtils {
     }
 
     public static List<String> listSubfolders(Path directoryPath) throws IOException {
-        DirectoryStream.Filter<Path> filter = entry -> Files.isDirectory(entry);
+        DirectoryStream.Filter<Path> filter = Files::isDirectory;
         List<String> list = new LinkedList<>();
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(directoryPath, filter)) {
             for (Path subfolder : stream) {
@@ -64,6 +84,9 @@ public class FileUtils {
 
 
     private static void cloneFolderWithRetries(Path sourceFolder, Path targetFolder, int remainingRetries) throws IOException {
+
+
+
         try {
             Files.walkFileTree(sourceFolder, new SimpleFileVisitor<Path>() {
                 @Override
@@ -77,9 +100,10 @@ public class FileUtils {
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     Path targetFile = targetFolder.resolve(sourceFolder.relativize(file));
                     File f = new File(file.toString());
-                    if(f.getName().equals("session.lock")){
+                    if(f.getName().equals("session.lock") || f.getName().equals("uid.dat")){
                         return FileVisitResult.CONTINUE;
                     }
+
                     boolean success = false;
                     int retries = 0;
                     while (!success && retries < remainingRetries) {
@@ -96,7 +120,7 @@ public class FileUtils {
                         }
                     }
                     if (!success) {
-                        BackupMaster.getInstance().getLogger().log(Level.SEVERE, "Failed to copy file after retries: " + file);
+                        //BackupMaster.getInstance().getLogger().log(Level.SEVERE, "Failed to copy file after retries: " + file);
                     }
                     return FileVisitResult.CONTINUE;
                 }

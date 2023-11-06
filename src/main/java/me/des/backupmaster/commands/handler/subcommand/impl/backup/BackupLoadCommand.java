@@ -1,6 +1,7 @@
 package me.des.backupmaster.commands.handler.subcommand.impl.backup;
 
 import me.des.backupmaster.BackupMaster;
+import me.des.backupmaster.collections.database.DataContainer;
 import me.des.backupmaster.collections.database.impl.local.FileDataContainer;
 import me.des.backupmaster.commands.handler.subcommand.SubCommand;
 import me.des.backupmaster.commands.handler.subcommand.SubCommandManager;
@@ -12,35 +13,60 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class BackupLoadCommand implements SubCommand {
 
-    private final FileDataContainer container;
+    private final DataContainer container;
     private final BackupMaster plugin;
 
-    private final SubCommandManager manager;
 
-    public BackupLoadCommand(FileDataContainer container, BackupMaster plugin, SubCommandManager manager){
+
+    public BackupLoadCommand(DataContainer container, BackupMaster plugin){
         this.container = container;
         this.plugin = plugin;
-        this.manager = manager;
+
     }
+
+    private boolean worldLoading = false;
 
 
     @Override
     public void execute(CommandSender sender, String command, String[] args) {
 
         if(sender instanceof Player player){
-            if(args.length >= 1){
+            if(args.length >= 2){
 
-                boolean hasWorldLoaded =  plugin.getWorldManager().loadWorld(args[0], WorldManager.WorldType.NORMAL);
+                    if(!plugin.getWorldManager().worldTypeExists(args[1])){
+                        player.sendMessage("SANKDLAJSLD");
+                        return;
+                    }
+                    if(worldLoading){
+                        player.sendMessage("IN USE");
+                        return;
+                    }
+                    try{
+                        worldLoading = true;
+                        player.sendMessage("Started world loading!");
+                        boolean hasWorldLoaded =  plugin.getWorldManager().loadWorld(args[0], WorldManager.WorldType.valueFrom(args[1]));
 
-                if(hasWorldLoaded){
-                    player.sendMessage("World loaded successfully");
-                }else{
-                    player.sendMessage("An error occured loading this world");
-                }
+                        if(hasWorldLoaded){
+                            player.sendMessage("World loaded successfully");
+                        }else{
+                            player.sendMessage("An error occurred loading this world");
+                        }
+                    }finally {
+                        worldLoading = false;
+                    }
 
+
+
+
+
+                return;
+            }else if(args.length == 1) {
+                player.sendMessage("/backup load <worldName> <env>");
                 return;
             }
             player.sendMessage("Fetching worlds...");
