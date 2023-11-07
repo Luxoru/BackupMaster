@@ -16,7 +16,7 @@ public interface DataContainer {
      * @param name The name of the template
      * @return A future which will be completed with the template, or null if it does not exist
      */
-    CompletableFuture<World> fetchWorld(String name, String worldType);
+    CompletableFuture<String> fetchWorld(String name, String worldType);
 
     /**
      * Saves a template to the container.

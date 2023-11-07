@@ -29,7 +29,7 @@ public class MongoDataContainer extends RemoteDataContainer {
     }
 
     @Override
-    public CompletableFuture<World> fetchWorld(String name, String worldType) {
+    public CompletableFuture<String> fetchWorld(String name, String worldType) {
         return null;
     }
 

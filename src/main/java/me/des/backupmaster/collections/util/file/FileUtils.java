@@ -27,7 +27,9 @@ public class FileUtils {
         boolean exists =Files.exists(Path.of(pathTo));
         while (exists){
             count++;
-            exists = Files.exists(Path.of(pathTo + "\\"+count));
+
+            exists = Files.exists(Path.of(pathTo+count));
+
         }
 
         Path tF;

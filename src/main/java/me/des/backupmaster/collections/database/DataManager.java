@@ -66,6 +66,13 @@ public class DataManager {
     }
 
 
+    public DataContainer getDefaultContainer(){
+        FileConfiguration config = plugin.getConfig();
+
+        return enabledContainers.get(config.getString("default"));
+    }
+
+
     public DataContainer getFromContainerName(String containerName){
         return enabledContainers.get(containerName);
     }

@@ -1,3 +1,4 @@
+
 package me.des.backupmaster.collections.util.file;
 
 import lombok.SneakyThrows;
@@ -42,4 +43,5 @@ class FileUtilsTest {
     @Test
     void listSubfolders() {
     }
-}
+
+  }

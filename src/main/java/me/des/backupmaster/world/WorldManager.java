@@ -1,5 +1,7 @@
 package me.des.backupmaster.world;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import me.des.backupmaster.BackupMaster;
 import me.des.backupmaster.collections.database.DataContainer;
@@ -7,6 +9,7 @@ import me.des.backupmaster.collections.database.DataManager;
 import me.des.backupmaster.util.array.NoMultiverseEnabledException;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.WorldType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,16 +18,19 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
 public class WorldManager {
 
     private final Set<String> worlds;
     private final BackupMaster plugin;
+    private DataManager dataManager;
 
     public WorldManager(BackupMaster plugin) {
         this.worlds = new HashSet<>();
         this.plugin = plugin;
+        dataManager = plugin.getDataManager();
         getAllWorldsOnServer();
     }
 
@@ -152,17 +158,29 @@ public class WorldManager {
     @Getter
     public enum WorldType {
 
-        NORMAL("normal"), NETHER("nether"), END("end"), CUSTOM("custom");
+        NORMAL("normal", 0), NETHER("nether", -1), END("the_end", 1), CUSTOM("custom", -999);
 
-        private final String worldName;
 
-        WorldType(String worldName) {
+
+        public final int id;
+        public final String worldName;
+
+        WorldType(String worldName, int id) {
             this.worldName = worldName;
+            this.id = id;
         }
 
         public static String from(WorldType type){
             for(WorldType t : values()){
-                if(Objects.equals(t.worldName, type.worldName))return t.getWorldName();
+                if(Objects.equals(t.worldName, type.worldName))return t.name();
+            }
+            return null;
+        }
+
+
+        public static WorldType valueFrom(String type){
+            for(WorldType t : values()){
+                if(t.name().equalsIgnoreCase(type)) return t;
             }
             return null;
         }
@@ -171,22 +189,43 @@ public class WorldManager {
     }
 
 
+
     public boolean loadWorld(String worldName, WorldType worldType){
+
+
         String defaultLoader = plugin.getConfig().getString("default");
 
-        DataManager dataManager = plugin.getDataManager();
         DataContainer container = dataManager.getFromContainerName(defaultLoader);
 
         if(container == null){
             return false;
         }
 
-        CompletableFuture<World> worldCompletableFuture = container.fetchWorld(worldName, worldType.name());
+        CompletableFuture<Boolean> worldCompletableFuture = container.loadWorld(worldName, worldType.name());
+
+
         worldCompletableFuture.completeExceptionally(new NoMultiverseEnabledException());
-        World world = worldCompletableFuture.join();
-        if(world == null) return false;
-        return Bukkit.getWorld(world.getName()) != null;
+        return worldCompletableFuture.join();
+
+
     }
+
+
+
+    public boolean worldTypeExists(String worldType){
+        try{
+            WorldType type = WorldType.valueFrom(worldType);
+            if(type == null){
+                return false;
+            }
+            World.Environment worldType1 = World.Environment.valueOf(worldType);
+        }catch (IllegalArgumentException e){
+            return false;
+        }
+        return true;
+    }
+
+
 
 
 }

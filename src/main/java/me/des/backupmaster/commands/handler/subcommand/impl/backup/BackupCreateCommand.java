@@ -1,6 +1,7 @@
 package me.des.backupmaster.commands.handler.subcommand.impl.backup;
 
 import me.des.backupmaster.BackupMaster;
+import me.des.backupmaster.collections.database.DataContainer;
 import me.des.backupmaster.collections.database.impl.local.FileDataContainer;
 import me.des.backupmaster.commands.handler.subcommand.SubCommand;
 import me.des.backupmaster.commands.handler.subcommand.SubCommandManager;
@@ -14,11 +15,11 @@ import java.util.concurrent.CompletableFuture;
 
 public class BackupCreateCommand implements SubCommand {
 
-    private FileDataContainer container;
+    private DataContainer container;
     private BackupMaster plugin;
 
 
-    public BackupCreateCommand(FileDataContainer container, BackupMaster plugin){
+    public BackupCreateCommand(DataContainer container, BackupMaster plugin){
         this.container = container;
         this.plugin = plugin;
     }
