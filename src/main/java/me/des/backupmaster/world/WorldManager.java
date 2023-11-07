@@ -228,4 +228,21 @@ public class WorldManager {
 
 
 
+    public boolean zipWorld(String sourceDir){
+        String defaultLoader = plugin.getConfig().getString("default");
+
+        DataContainer container = dataManager.getFromContainerName(defaultLoader);
+
+        if(container == null){
+            return false;
+        }
+
+
+
+
+    }
+
+
+
+
 }
