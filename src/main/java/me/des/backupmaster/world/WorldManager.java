@@ -161,6 +161,7 @@ public class WorldManager {
         NORMAL("normal", 0), NETHER("nether", -1), END("the_end", 1), CUSTOM("custom", -999);
 
 
+
         public final int id;
         public final String worldName;
 
@@ -201,6 +202,7 @@ public class WorldManager {
         }
 
         CompletableFuture<Boolean> worldCompletableFuture = container.loadWorld(worldName, worldType.name());
+
 
         worldCompletableFuture.completeExceptionally(new NoMultiverseEnabledException());
         return worldCompletableFuture.join();

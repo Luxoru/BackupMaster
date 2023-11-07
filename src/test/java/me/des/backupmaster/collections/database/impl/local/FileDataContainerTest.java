@@ -1,3 +1,4 @@
+
 package me.des.backupmaster.collections.database.impl.local;
 
 import me.des.backupmaster.collections.util.file.FileUtils;

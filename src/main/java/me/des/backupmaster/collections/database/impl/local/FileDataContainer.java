@@ -151,21 +151,27 @@ public class FileDataContainer implements DataContainer {
     @Override
     public CompletableFuture<Boolean> loadWorld(String name, String worldType) {
 
-            WorldManager.WorldType type = WorldManager.WorldType.valueFrom(worldType);
 
-            // Define a regular expression pattern to capture the text before the first dash
-            Pattern pattern = Pattern.compile("([^\\-]+)-\\d{4}_\\d{2}_\\d{2}_\\d{2}-\\d{2}-\\d{2}");
+        WorldManager.WorldType type = WorldManager.WorldType.valueFrom(worldType);
 
-            // Create a Matcher to find the pattern in the input string
-            Matcher matcher = pattern.matcher(name);
+        // Define a regular expression pattern to capture the text before the first dash
+        Pattern pattern = Pattern.compile("([^\\-]+)-\\d{4}_\\d{2}_\\d{2}_\\d{2}-\\d{2}-\\d{2}");
 
-            String result = "";
-            // Move world folder to main folder
+        // Create a Matcher to find the pattern in the input string
+        Matcher matcher = pattern.matcher(name);
+
+        String result = "";
+        // Move world folder to main folder
+
+
 
             String filePath = getFileSavingPath()+"\\"+type+"\\"+name;
 
+
             File rootFolder = BackupMaster.getInstance().getWorldManager().getRootFolder();
 
+
+        // Load the folder using multiverse.
 
 
 
