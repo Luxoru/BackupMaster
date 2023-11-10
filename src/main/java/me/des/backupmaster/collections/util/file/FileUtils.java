@@ -24,7 +24,8 @@ public class FileUtils {
         //BackupMaster.getInstance().getLogger().log(Level.INFO, "Cloning world folder: "+sourceFolder.getFileName());
 
         int count = 0;
-        boolean exists =Files.exists(Path.of(pathTo));
+        Path pTo = Paths.get(pathTo);
+        boolean exists =Files.exists(pTo);
         while (exists){
             count++;
 
@@ -37,7 +38,7 @@ public class FileUtils {
         if(count != 0){
             tF = Paths.get(pathTo+count);
         }else{
-            tF = Paths.get(pathTo);
+            tF = pTo;
         }
 
         Path targetFolder = tF;

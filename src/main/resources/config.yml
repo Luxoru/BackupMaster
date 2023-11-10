@@ -13,9 +13,11 @@ mariadb:
 
 default: file
 
+
 file:
   enabled: true
   directory: ""
+  zip_dir: ""
 
 mongodb:
   enabled: false

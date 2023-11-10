@@ -35,24 +35,24 @@ public class WorldManager {
     }
 
 
-    public boolean addWorld(World world){
+    public boolean addWorld(World world) {
         return worlds.add(world.getName());
     }
 
-    public boolean removeWorld(@NotNull World world){
+    public boolean removeWorld(@NotNull World world) {
         return worlds.remove(world.getName());
     }
 
-    public World getWorld(String worldName){
+    public World getWorld(String worldName) {
         String nameOfWorld = getWorldFromName(worldName).join();
         return Bukkit.getWorld(nameOfWorld);
     }
 
-    private CompletableFuture<String> getWorldFromName(String name){
+    private CompletableFuture<String> getWorldFromName(String name) {
         CompletableFuture<String> future = new CompletableFuture<>();
-        CompletableFuture.supplyAsync(() ->{
-            for(String world : worlds){
-                if(world.equals(name)){
+        CompletableFuture.supplyAsync(() -> {
+            for (String world : worlds) {
+                if (world.equals(name)) {
                     future.complete(world);
                     return future;
                 }
@@ -63,24 +63,25 @@ public class WorldManager {
         return future;
     }
 
-    public boolean doesWorldExist(World world){
+    public boolean doesWorldExist(World world) {
         return hasWorld(world).join();
     }
-    public boolean doesWorldExist(String worldName){
-        if(Bukkit.getWorld(worldName) == null)return false;
+
+    public boolean doesWorldExist(String worldName) {
+        if (Bukkit.getWorld(worldName) == null) return false;
         return hasWorld(Bukkit.getWorld(worldName)).join();
     }
 
     @Contract("_ -> new")
-    private @NotNull CompletableFuture<Boolean> hasWorld(World world){
+    private @NotNull CompletableFuture<Boolean> hasWorld(World world) {
         return CompletableFuture.supplyAsync(() -> worlds.contains(world.getName()));
     }
 
-    public CompletableFuture<File> getWorldFolder(String worldName){
+    public CompletableFuture<File> getWorldFolder(String worldName) {
         return CompletableFuture.supplyAsync(() -> getFolder(worldName));
     }
 
-    private File getFolder(String folderName){
+    private File getFolder(String folderName) {
         File rootFolder = getRootFolder();
         // Construct the path to the "worlds" directory
         String decodedPath = URLDecoder.decode(rootFolder.getAbsolutePath(), StandardCharsets.UTF_8);
@@ -98,7 +99,7 @@ public class WorldManager {
         return null;
     }
 
-    public File getRootFolder(){
+    public File getRootFolder() {
         File pluginFile = new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
         return pluginFile.getParentFile().getParentFile();
     }
@@ -135,7 +136,7 @@ public class WorldManager {
         });
 
         executor.shutdown();
-        try{
+        try {
             this.worlds.addAll(future.get());
             plugin.getLogger().log(Level.INFO, "\u001B[32mSuccessfully loaded worlds.\u001B[0m");
         } catch (ExecutionException | InterruptedException e) {
@@ -144,10 +145,9 @@ public class WorldManager {
         }
     }
 
-    public Collection<String> getWorlds(){
+    public Collection<String> getWorlds() {
         return worlds;
     }
-
 
 
     private boolean hasLevelDatFile(File worldFolder) {
@@ -161,7 +161,6 @@ public class WorldManager {
         NORMAL("normal", 0), NETHER("nether", -1), END("the_end", 1), CUSTOM("custom", -999);
 
 
-
         public final int id;
         public final String worldName;
 
@@ -170,17 +169,17 @@ public class WorldManager {
             this.id = id;
         }
 
-        public static String from(WorldType type){
-            for(WorldType t : values()){
-                if(Objects.equals(t.worldName, type.worldName))return t.name();
+        public static String from(WorldType type) {
+            for (WorldType t : values()) {
+                if (Objects.equals(t.worldName, type.worldName)) return t.name();
             }
             return null;
         }
 
 
-        public static WorldType valueFrom(String type){
-            for(WorldType t : values()){
-                if(t.name().equalsIgnoreCase(type)) return t;
+        public static WorldType valueFrom(String type) {
+            for (WorldType t : values()) {
+                if (t.name().equalsIgnoreCase(type)) return t;
             }
             return null;
         }
@@ -189,15 +188,14 @@ public class WorldManager {
     }
 
 
-
-    public boolean loadWorld(String worldName, WorldType worldType){
+    public boolean loadWorld(String worldName, WorldType worldType) {
 
 
         String defaultLoader = plugin.getConfig().getString("default");
 
         DataContainer container = dataManager.getFromContainerName(defaultLoader);
 
-        if(container == null){
+        if (container == null) {
             return false;
         }
 
@@ -211,19 +209,32 @@ public class WorldManager {
     }
 
 
-
-    public boolean worldTypeExists(String worldType){
-        try{
+    public boolean worldTypeExists(String worldType) {
+        try {
             WorldType type = WorldType.valueFrom(worldType);
-            if(type == null){
+            if (type == null) {
                 return false;
             }
             World.Environment worldType1 = World.Environment.valueOf(worldType);
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return false;
         }
         return true;
     }
+
+
+    public boolean zipWorld(String sourceDir) {
+        String defaultLoader = plugin.getConfig().getString("default");
+
+        DataContainer container = dataManager.getFromContainerName(defaultLoader);
+
+        if (container == null) {
+            return false;
+        }
+
+        return false;
+    }
+
 
 
 

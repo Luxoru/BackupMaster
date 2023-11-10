@@ -27,7 +27,7 @@ public class BackupCommand implements CommandExecutor {
         this.fileDataContainer = new FileDataContainer(plugin);
 
         subCommandManager.registerSubCommands("backup", "create", new BackupCreateCommand(fileDataContainer, plugin));
-        subCommandManager.registerSubCommands("backup", "load", new BackupLoadCommand(fileDataContainer, plugin, manager));
+        subCommandManager.registerSubCommands("backup", "load", new BackupLoadCommand(fileDataContainer, plugin));
     }
 
 

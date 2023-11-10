@@ -130,6 +130,11 @@
             <version>5.10.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.dropbox.core</groupId>
+            <artifactId>dropbox-core-sdk</artifactId>
+            <version>3.1.7</version> <!-- Check for the latest version -->
+        </dependency>
     </dependencies>
 
 
