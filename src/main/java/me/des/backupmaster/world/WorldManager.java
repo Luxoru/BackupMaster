@@ -232,7 +232,7 @@ public class WorldManager {
             return false;
         }
 
-        return null;
+        return false;
     }
 
 
