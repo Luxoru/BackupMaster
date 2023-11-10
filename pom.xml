@@ -133,7 +133,7 @@
         <dependency>
             <groupId>com.dropbox.core</groupId>
             <artifactId>dropbox-core-sdk</artifactId>
-            <version>5.4.5</version>
+            <version>3.1.7</version> <!-- Check for the latest version -->
         </dependency>
     </dependencies>
 
